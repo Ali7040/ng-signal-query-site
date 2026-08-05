@@ -1,0 +1,300 @@
+:host {
+  display: block;
+  --rail: clamp(7rem, 14vw, 10rem);
+  --lane-gap: 1.25rem;
+  --track-pad: 1.5rem;
+}
+
+.panel {
+  background: var(--paper-raised);
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  padding: clamp(1.1rem, 2.4vw, 1.75rem);
+}
+
+/* --- controls ------------------------------------------------------------ */
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1.1rem;
+  border-bottom: 1.5px solid var(--ink);
+}
+
+.picker {
+  display: flex;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.picker button {
+  font-family: var(--mono);
+  font-size: var(--t-sm);
+  padding: 0.5rem 0.85rem;
+  background: none;
+  border: 0;
+  border-right: 1px solid var(--faint);
+  color: var(--ink-soft);
+  cursor: pointer;
+  transition:
+    background-color 160ms var(--ease-out),
+    color 160ms var(--ease-out);
+}
+.picker button:last-child {
+  border-right: 0;
+}
+.picker button:hover {
+  background: var(--paper-sunken);
+  color: var(--ink);
+}
+.picker button.on {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.knobs {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.knobs label {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+input[type='range'] {
+  width: clamp(5rem, 12vw, 9rem);
+  accent-color: var(--data);
+  cursor: ew-resize;
+}
+
+output {
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  color: var(--ink-soft);
+  font-variant-numeric: tabular-nums;
+  min-width: 3.5rem;
+}
+
+.reset {
+  font: inherit;
+  font-size: var(--t-sm);
+  background: none;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  color: var(--ink-soft);
+  padding: 0.45rem 0.8rem;
+  cursor: pointer;
+  transition:
+    border-color 160ms var(--ease-out),
+    color 160ms var(--ease-out);
+}
+.reset:hover {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+
+/* --- rows --------------------------------------------------------------- */
+
+.row {
+  display: grid;
+  grid-template-columns: var(--rail) minmax(0, 1fr);
+  gap: var(--lane-gap);
+  align-items: start;
+  padding: 1.15rem 0;
+}
+.row.result {
+  border-top: 1px dashed var(--rule);
+}
+
+.rail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.rail code {
+  font-size: var(--t-sm);
+  font-weight: 700;
+  color: var(--data);
+  text-transform: none;
+  letter-spacing: 0;
+}
+.rail em {
+  font-style: normal;
+  font-size: 0.66rem;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--ink-faint);
+}
+
+/* --- tracks ------------------------------------------------------------- */
+
+.track {
+  position: relative;
+  min-height: 5.4rem;
+  padding-right: var(--track-pad);
+}
+
+.track.clickable {
+  min-height: 2.4rem;
+  /* The affordance: this line is something you draw on. */
+  cursor: crosshair;
+  border-radius: 4px;
+  transition: background-color 160ms var(--ease-out);
+}
+.track.clickable:hover {
+  background: var(--accent-soft);
+}
+
+.axis {
+  position: absolute;
+  inset-inline: 0;
+  top: 0.6rem;
+  height: 1px;
+  background: var(--faint);
+}
+
+.empty {
+  position: absolute;
+  left: 0;
+  top: 1.5rem;
+  font-size: var(--t-xs);
+  color: var(--ink-faint);
+  pointer-events: none;
+}
+
+/* --- source ticks: the input, in accent --------------------------------- */
+
+.tick {
+  position: absolute;
+  top: 0.05rem;
+  width: 1.1rem;
+  height: 1.1rem;
+  margin-left: -0.55rem;
+  padding: 0;
+  border: 2px solid var(--accent);
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: not-allowed;
+  transition: transform 160ms var(--ease-out);
+}
+.tick:hover {
+  transform: scale(1.25);
+  background: var(--paper-raised);
+}
+
+/* --- output ------------------------------------------------------------- */
+
+.bar {
+  position: absolute;
+  height: 3px;
+  margin-top: 0.55rem;
+  border-radius: 2px;
+  background: var(--data);
+}
+.bar.dim {
+  background: var(--rule);
+}
+
+/* A queued call that hasn't started yet: waiting, not working. */
+.wait {
+  position: absolute;
+  height: 1px;
+  margin-top: 0.62rem;
+  border-top: 1px dashed var(--rule);
+}
+
+.marble {
+  position: absolute;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-left: -0.625rem;
+  border-radius: 50%;
+  background: var(--data);
+  color: var(--paper-raised);
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  transition:
+    left 200ms var(--ease-out),
+    top 200ms var(--ease-out);
+}
+
+.marble.cancelled,
+.marble.ignored {
+  background: var(--paper-raised);
+  border: 1.5px dashed var(--rule);
+  color: var(--ink-faint);
+  font-size: 0.72rem;
+}
+.marble.ignored {
+  width: 0.95rem;
+  height: 0.95rem;
+  margin-left: -0.475rem;
+}
+
+/* --- readout ------------------------------------------------------------ */
+
+.readout {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem 1.5rem;
+  align-items: baseline;
+  padding-top: 1rem;
+  border-top: 1px solid var(--faint);
+  font-size: var(--t-sm);
+  color: var(--ink-soft);
+}
+.readout b {
+  font-family: var(--display);
+  font-size: var(--t-md);
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  margin-right: 0.25rem;
+}
+.readout .note {
+  margin-left: auto;
+  color: var(--accent);
+  font-size: var(--t-xs);
+}
+
+.snippet {
+  margin: 1.1rem 0 0;
+  background: var(--paper-sunken);
+  border-radius: 8px;
+  padding: 0.95rem 1.1rem;
+  font-size: var(--t-sm);
+  line-height: 1.7;
+  overflow-x: auto;
+  cursor: text;
+}
+.snippet code {
+  white-space: pre;
+}
+
+@media (max-width: 48rem) {
+  .row {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+  .controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .readout .note {
+    margin-left: 0;
+  }
+}

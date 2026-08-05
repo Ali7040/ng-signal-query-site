@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { animate, stagger } from 'animejs';
 import { Toast } from './toast/toast';
+import { Playground } from './playground/playground';
 import { MarbleDiagram, STRATEGIES, StrategyKey } from './marble-diagram/marble-diagram';
 
 type Kind = 'yes' | 'no' | 'partial';
@@ -23,7 +24,7 @@ interface ComparisonRow {
 @Component({
   selector: 'app-root',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [MarbleDiagram, Toast],
+  imports: [MarbleDiagram, Toast, Playground],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
