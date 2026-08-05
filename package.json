@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
+    "start": "node init && ng serve",
+    "build": "node init && ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:ng-signal-query-site": "node dist/ng-signal-query-site/server/server.mjs"
@@ -23,7 +23,9 @@
     "@angular/ssr": "^21.2.20",
     "@types/animejs": "^3.1.13",
     "animejs": "^4.5.0",
+    "dotenv": "^8.2.0",
     "express": "^5.1.0",
+    "node-fetch": "^3.3.2",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },

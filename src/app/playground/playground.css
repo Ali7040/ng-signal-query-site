@@ -1,6 +1,6 @@
 :host {
   display: block;
-  --rail: clamp(7rem, 14vw, 10rem);
+  --rail: clamp(8rem, 16vw, 11rem);
   --lane-gap: 1.25rem;
   --track-pad: 1.5rem;
 }
@@ -12,14 +12,59 @@
   padding: clamp(1.1rem, 2.4vw, 1.75rem);
 }
 
-/* --- controls ------------------------------------------------------------ */
+/* --- how-to ------------------------------------------------------------- */
+
+.guide {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.75rem;
+  margin: 0 0 1.25rem;
+  padding: 0 0 1.1rem;
+  border-bottom: 1px solid var(--faint);
+  list-style: none;
+  counter-reset: step;
+  font-size: var(--t-sm);
+  color: var(--ink-soft);
+}
+.guide li {
+  counter-increment: step;
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+.guide li::before {
+  content: counter(step);
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+}
+.guide b {
+  color: var(--ink);
+  font-weight: 600;
+}
+.guide em {
+  font-style: normal;
+  font-family: var(--mono);
+  font-size: 0.9em;
+  color: var(--ink);
+}
+
+/* --- controls ----------------------------------------------------------- */
 
 .controls {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 1rem 1.5rem;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end;
   padding-bottom: 1.1rem;
   border-bottom: 1.5px solid var(--ink);
 }
@@ -30,11 +75,10 @@
   border-radius: var(--radius);
   overflow: hidden;
 }
-
 .picker button {
   font-family: var(--mono);
   font-size: var(--t-sm);
-  padding: 0.5rem 0.85rem;
+  padding: 0.5rem 0.9rem;
   background: none;
   border: 0;
   border-right: 1px solid var(--faint);
@@ -56,20 +100,26 @@
   color: var(--paper);
 }
 
-.knobs {
+.slider {
   display: flex;
-  align-items: center;
-  gap: 1.25rem;
+  flex-direction: column;
+  gap: 0.35rem;
+  cursor: pointer;
 }
-
-.knobs label {
+.slider-row {
   display: flex;
   align-items: center;
   gap: 0.6rem;
 }
+.slider-row em {
+  font-style: normal;
+  font-family: var(--mono);
+  font-size: 0.66rem;
+  color: var(--ink-faint);
+}
 
 input[type='range'] {
-  width: clamp(5rem, 12vw, 9rem);
+  width: clamp(6rem, 14vw, 11rem);
   accent-color: var(--data);
   cursor: ew-resize;
 }
@@ -77,27 +127,10 @@ input[type='range'] {
 output {
   font-family: var(--mono);
   font-size: var(--t-xs);
-  color: var(--ink-soft);
-  font-variant-numeric: tabular-nums;
-  min-width: 3.5rem;
-}
-
-.reset {
-  font: inherit;
-  font-size: var(--t-sm);
-  background: none;
-  border: 1px solid var(--rule);
-  border-radius: var(--radius);
-  color: var(--ink-soft);
-  padding: 0.45rem 0.8rem;
-  cursor: pointer;
-  transition:
-    border-color 160ms var(--ease-out),
-    color 160ms var(--ease-out);
-}
-.reset:hover {
-  border-color: var(--ink);
   color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  min-width: 3.75rem;
+  text-align: right;
 }
 
 /* --- rows --------------------------------------------------------------- */
@@ -116,41 +149,64 @@ output {
 .rail {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
-  font-family: var(--mono);
+  gap: 0.2rem;
   font-size: var(--t-xs);
-  color: var(--ink-faint);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
 }
 .rail code {
+  font-family: var(--mono);
   font-size: var(--t-sm);
   font-weight: 700;
   color: var(--data);
-  text-transform: none;
-  letter-spacing: 0;
 }
-.rail em {
+.rail > em {
   font-style: normal;
+  font-family: var(--mono);
   font-size: 0.66rem;
-  text-transform: none;
-  letter-spacing: 0;
   color: var(--ink-faint);
+}
+
+.rail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.4rem;
+}
+.rail-actions button {
+  font: inherit;
+  font-size: 0.72rem;
+  background: none;
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+  color: var(--ink-soft);
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  transition:
+    border-color 160ms var(--ease-out),
+    color 160ms var(--ease-out);
+}
+.rail-actions button:hover:not(:disabled) {
+  border-color: var(--ink);
+  color: var(--ink);
+}
+.rail-actions button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 /* --- tracks ------------------------------------------------------------- */
 
 .track {
   position: relative;
-  min-height: 5.4rem;
+  min-height: 5.6rem;
   padding-right: var(--track-pad);
 }
 
 .track.clickable {
-  min-height: 2.4rem;
-  /* The affordance: this line is something you draw on. */
+  min-height: 2.6rem;
   cursor: crosshair;
-  border-radius: 4px;
+  border-radius: 6px;
+  /* A faint field makes the clickable area discoverable before hover. */
+  background: var(--paper-sunken);
   transition: background-color 160ms var(--ease-out);
 }
 .track.clickable:hover {
@@ -160,25 +216,25 @@ output {
 .axis {
   position: absolute;
   inset-inline: 0;
-  top: 0.6rem;
+  top: 0.68rem;
   height: 1px;
-  background: var(--faint);
+  background: var(--rule);
 }
 
-.empty {
+.hint {
   position: absolute;
-  left: 0;
+  left: 0.5rem;
   top: 1.5rem;
   font-size: var(--t-xs);
   color: var(--ink-faint);
   pointer-events: none;
 }
 
-/* --- source ticks: the input, in accent --------------------------------- */
+/* --- source ticks ------------------------------------------------------- */
 
 .tick {
   position: absolute;
-  top: 0.05rem;
+  top: 0.13rem;
   width: 1.1rem;
   height: 1.1rem;
   margin-left: -0.55rem;
@@ -186,12 +242,31 @@ output {
   border: 2px solid var(--accent);
   border-radius: 50%;
   background: var(--accent);
-  cursor: not-allowed;
-  transition: transform 160ms var(--ease-out);
+  /* It IS removable — say so, rather than showing a blocked cursor. */
+  cursor: pointer;
+  transition:
+    transform 160ms var(--ease-out),
+    background-color 160ms var(--ease-out);
+}
+.tick::after {
+  content: '\00d7';
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--mono);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--accent);
+  opacity: 0;
+  transition: opacity 140ms var(--ease-out);
 }
 .tick:hover {
-  transform: scale(1.25);
+  transform: scale(1.35);
   background: var(--paper-raised);
+}
+.tick:hover::after {
+  opacity: 1;
 }
 
 /* --- output ------------------------------------------------------------- */
@@ -199,7 +274,7 @@ output {
 .bar {
   position: absolute;
   height: 3px;
-  margin-top: 0.55rem;
+  margin-top: 0.63rem;
   border-radius: 2px;
   background: var(--data);
 }
@@ -207,11 +282,11 @@ output {
   background: var(--rule);
 }
 
-/* A queued call that hasn't started yet: waiting, not working. */
+/* A queued call that hasn't started: waiting, not working. */
 .wait {
   position: absolute;
-  height: 1px;
-  margin-top: 0.62rem;
+  height: 0;
+  margin-top: 0.7rem;
   border-top: 1px dashed var(--rule);
 }
 
@@ -228,9 +303,11 @@ output {
   font-weight: 700;
   display: grid;
   place-items: center;
+  cursor: help;
   transition:
     left 200ms var(--ease-out),
-    top 200ms var(--ease-out);
+    top 200ms var(--ease-out),
+    width 200ms var(--ease-out);
 }
 
 .marble.cancelled,
@@ -246,6 +323,50 @@ output {
   margin-left: -0.475rem;
 }
 
+/* --- legend ------------------------------------------------------------- */
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.5rem;
+  margin: 0;
+  padding: 0.9rem 0 0;
+  border-top: 1px solid var(--faint);
+  list-style: none;
+  font-size: var(--t-xs);
+  color: var(--ink-soft);
+}
+.legend li {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.key {
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-family: var(--mono);
+  font-size: 0.6rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.key.settled {
+  background: var(--data);
+  color: var(--paper-raised);
+}
+.key.cancelled,
+.key.ignored {
+  background: var(--paper-raised);
+  border: 1.5px dashed var(--rule);
+  color: var(--ink-faint);
+}
+.key.ignored {
+  width: 0.85rem;
+  height: 0.85rem;
+}
+
 /* --- readout ------------------------------------------------------------ */
 
 .readout {
@@ -253,8 +374,7 @@ output {
   flex-wrap: wrap;
   gap: 0.35rem 1.5rem;
   align-items: baseline;
-  padding-top: 1rem;
-  border-top: 1px solid var(--faint);
+  padding-top: 0.9rem;
   font-size: var(--t-sm);
   color: var(--ink-soft);
 }
@@ -288,7 +408,7 @@ output {
 @media (max-width: 48rem) {
   .row {
     grid-template-columns: 1fr;
-    gap: 0.5rem;
+    gap: 0.6rem;
   }
   .controls {
     flex-direction: column;

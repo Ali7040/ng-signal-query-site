@@ -11,19 +11,37 @@ import { Request, requestCount, settledCount, simulate } from './simulate';
 const SPAN = 6000;
 const DEFAULT_CALLS = [200, 700, 1100, 1600, 3400];
 
+/** What each strategy is good for — shown as the picker's tooltip. */
+const HINTS: Record<StrategyKey, string> = {
+  merge: 'Every call runs in parallel. Good for independent writes.',
+  concat: 'Calls queue up and run in order. Good for ordered steps.',
+  switch: 'A new call cancels the one in flight. Good for autosave.',
+  exhaust: 'Calls are dropped while one is running. Good for submit buttons.',
+};
+
 @Component({
   selector: 'app-playground',
   changeDetection: ChangeDetectionStrategy.OnPush,
   styleUrl: './playground.css',
   template: `
     <div class="panel">
-      <!-- ── controls ─────────────────────────────────────────────────── -->
+      <!-- ── how to use it ────────────────────────────────────────────── -->
+      <ol class="guide">
+        <li><b>Pick a strategy</b> below.</li>
+        <li><b>Click the timeline</b> to fire a call — or press <em>Add call</em>.</li>
+        <li><b>Drag the slider</b> to change how long each request takes.</li>
+      </ol>
+
+      <!-- ── strategy ─────────────────────────────────────────────────── -->
       <div class="controls">
-        <div class="picker" role="group" aria-label="Concurrency strategy">
+        <div class="picker" role="radiogroup" aria-label="Concurrency strategy">
           @for (s of strategies; track s.key) {
             <button
               type="button"
+              role="radio"
+              [attr.aria-checked]="strategy() === s.key"
               [class.on]="strategy() === s.key"
+              [title]="hints[s.key]"
               (click)="strategy.set(s.key)"
             >
               '{{ s.key }}'
@@ -32,34 +50,46 @@ const DEFAULT_CALLS = [200, 700, 1100, 1600, 3400];
         </div>
 
         <div class="knobs">
-          <label>
-            <span class="eyebrow">Request takes</span>
-            <input
-              type="range"
-              min="400"
-              max="2400"
-              step="100"
-              [value]="duration()"
-              (input)="setDuration($event)"
-              aria-label="Request duration in milliseconds"
-            />
-            <output>{{ duration() }}ms</output>
+          <label class="slider" [title]="'How long each request takes: ' + duration() + 'ms'">
+            <span class="eyebrow">Each request takes</span>
+            <span class="slider-row">
+              <em>fast</em>
+              <input
+                type="range"
+                min="200"
+                max="2600"
+                step="100"
+                [value]="duration()"
+                (input)="setDuration($event)"
+                (change)="setDuration($event)"
+                aria-label="Request duration in milliseconds"
+              />
+              <em>slow</em>
+              <output>{{ duration() }}ms</output>
+            </span>
           </label>
-          <button type="button" class="reset" (click)="reset()">Reset</button>
         </div>
       </div>
 
-      <!-- ── source track: click to add a call ────────────────────────── -->
+      <!-- ── source timeline ──────────────────────────────────────────── -->
       <div class="row">
         <span class="rail">
-          mutate()
-          <em>click the line to add a call</em>
+          <code>mutate()</code>
+          <em>{{ calls().length }} call{{ calls().length === 1 ? '' : 's' }}</em>
+          <span class="rail-actions">
+            <button type="button" (click)="addCall(null)" [disabled]="calls().length >= 8">
+              + Add call
+            </button>
+            <button type="button" (click)="reset()">Reset</button>
+          </span>
         </span>
+
         <div
           class="track clickable"
           role="button"
           tabindex="0"
-          aria-label="Add a mutate call at this point in time"
+          title="Click anywhere on this line to fire a call at that moment"
+          aria-label="Timeline. Click to add a call."
           (click)="addCall($event)"
           (keydown.enter)="addCall(null)"
         >
@@ -69,12 +99,13 @@ const DEFAULT_CALLS = [200, 700, 1100, 1600, 3400];
               type="button"
               class="tick"
               [style.left.%]="pct(t)"
+              [title]="'Call at ' + t + 'ms — click to remove'"
               [attr.aria-label]="'Remove call at ' + t + 'ms'"
               (click)="removeCall(t, $event)"
             ></button>
           }
           @if (!calls().length) {
-            <span class="empty">no calls yet — click anywhere on this line</span>
+            <span class="hint">click anywhere on this line to fire a call</span>
           }
         </div>
       </div>
@@ -87,6 +118,9 @@ const DEFAULT_CALLS = [200, 700, 1100, 1600, 3400];
         </span>
         <div class="track">
           <span class="axis"></span>
+          @if (!calls().length) {
+            <span class="hint">nothing to run yet</span>
+          }
           @for (r of requests(); track r.label) {
             @if (r.outcome !== 'ignored') {
               <span
@@ -94,15 +128,15 @@ const DEFAULT_CALLS = [200, 700, 1100, 1600, 3400];
                 [class.dim]="r.outcome === 'cancelled'"
                 [style.left.%]="pct(r.start)"
                 [style.width.%]="pct(r.end - r.start)"
-                [style.top.px]="r.lane * 14"
+                [style.top.px]="r.lane * 15"
               ></span>
-              <!-- Under concat a call can wait before it starts; show the wait. -->
               @if (r.start > r.called) {
                 <span
                   class="wait"
+                  [title]="'Call ' + r.label + ' waited ' + (r.start - r.called) + 'ms in the queue'"
                   [style.left.%]="pct(r.called)"
                   [style.width.%]="pct(r.start - r.called)"
-                  [style.top.px]="r.lane * 14"
+                  [style.top.px]="r.lane * 15"
                 ></span>
               }
             }
@@ -111,12 +145,20 @@ const DEFAULT_CALLS = [200, 700, 1100, 1600, 3400];
               [class.cancelled]="r.outcome === 'cancelled'"
               [class.ignored]="r.outcome === 'ignored'"
               [style.left.%]="pct(r.end)"
-              [style.top.px]="r.lane * 14"
+              [style.top.px]="r.lane * 15"
+              [title]="describe(r)"
               >{{ glyph(r) }}</span
             >
           }
         </div>
       </div>
+
+      <!-- ── legend ───────────────────────────────────────────────────── -->
+      <ul class="legend">
+        <li><span class="key settled">1</span> completed — your app gets this result</li>
+        <li><span class="key cancelled">&times;</span> cancelled in flight</li>
+        <li><span class="key ignored"></span> never sent</li>
+      </ul>
 
       <!-- ── readout ──────────────────────────────────────────────────── -->
       <div class="readout">
@@ -132,6 +174,7 @@ const DEFAULT_CALLS = [200, 700, 1100, 1600, 3400];
 })
 export class Playground {
   protected readonly strategies = STRATEGIES;
+  protected readonly hints = HINTS;
 
   readonly strategy = signal<StrategyKey>('exhaust');
   readonly duration = signal(1200);
@@ -146,12 +189,16 @@ export class Playground {
 
   protected readonly verdict = computed(() => {
     const calls = this.calls().length;
+    if (!calls) return 'Add a call to begin.';
+
     const sent = this.sent();
-    if (!calls) return 'Add a few calls to see the difference.';
-    if (sent === calls && this.strategy() === 'merge') return `All ${calls} hit your API.`;
-    if (sent < calls) return `${calls - sent} never left the client.`;
-    if (this.settled() < sent) return `${sent - this.settled()} were cancelled in flight.`;
-    return 'Every call ran, one after another.';
+    const dropped = calls - sent;
+    const cancelled = sent - this.settled();
+
+    if (dropped) return `${dropped} never left the client.`;
+    if (cancelled) return `${cancelled} cancelled mid-flight.`;
+    if (this.strategy() === 'concat') return 'All ran, strictly one at a time.';
+    return `All ${calls} hit your API.`;
   });
 
   protected readonly snippet = computed(
@@ -175,12 +222,25 @@ export class Playground {
     return String(r.label);
   }
 
-  /** Adds a call where the user clicked. Enter (no event) appends to the end. */
+  /** Plain-language explanation, surfaced as the marble's tooltip. */
+  protected describe(r: Request): string {
+    switch (r.outcome) {
+      case 'settled':
+        return `Call ${r.label}: ran ${r.start}–${r.end}ms and completed.`;
+      case 'cancelled':
+        return `Call ${r.label}: started at ${r.start}ms, cancelled at ${r.end}ms by a newer call.`;
+      default:
+        return `Call ${r.label}: dropped — another request was already running.`;
+    }
+  }
+
+  /** Adds a call where the user clicked; the button appends a spaced-out one. */
   protected addCall(event: MouseEvent | null): void {
     const next = this.calls().slice();
+    if (next.length >= 8) return;
 
     if (!event) {
-      next.push(Math.min(SPAN - 200, (next.at(-1) ?? 0) + 400));
+      next.push(Math.min(SPAN - 200, (next.at(-1) ?? 0) + 500));
     } else {
       const el = event.currentTarget as HTMLElement;
       const { left, width } = el.getBoundingClientRect();
@@ -188,12 +248,11 @@ export class Playground {
       next.push(Math.round(Math.max(0, Math.min(1, ratio)) * SPAN));
     }
 
-    // Cap it: past a handful of marbles the diagram stops teaching anything.
-    this.calls.set(next.sort((a, b) => a - b).slice(0, 8));
+    this.calls.set(next.sort((a, b) => a - b));
   }
 
   protected removeCall(t: number, event: MouseEvent): void {
-    // Don't let the click fall through to the track and immediately re-add one.
+    // Otherwise the click reaches the track and immediately re-adds a call.
     event.stopPropagation();
     this.calls.update((cs) => cs.filter((c) => c !== t));
   }
@@ -205,5 +264,6 @@ export class Playground {
   protected reset(): void {
     this.calls.set([...DEFAULT_CALLS]);
     this.duration.set(1200);
+    this.strategy.set('exhaust');
   }
 }
