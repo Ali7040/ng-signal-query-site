@@ -1,0 +1,197 @@
+:host {
+  display: block;
+  /* Shared by the lane grid and the playhead calc() so they stay aligned. */
+  --rail: clamp(6.5rem, 13vw, 9rem);
+  --lane-gap: 1.25rem;
+  --track-pad: 1.5rem;
+  position: relative;
+  /* Signals this region is a timeline you can read left-to-right. */
+  cursor: crosshair;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: var(--rail) 1fr;
+  gap: var(--lane-gap);
+  align-items: start;
+}
+
+/* Vertical time cursor across every lane. Positioned against the track column:
+   host width minus the rail, the grid gap and the track's own padding. */
+.playhead {
+  position: absolute;
+  top: 2rem;
+  bottom: 0.3rem;
+  width: 1px;
+  background: var(--accent);
+  opacity: 0.2;
+  pointer-events: none;
+  left: calc(
+    var(--rail) + var(--lane-gap) +
+      (100% - var(--rail) - var(--lane-gap) - var(--track-pad)) * var(--head, 0)
+  );
+}
+
+.source {
+  padding-bottom: 0.85rem;
+  border-bottom: 1px dashed var(--rule);
+}
+
+.lane-row {
+  padding: 0.95rem 0;
+  border-top: 1px solid var(--faint);
+  transition: background-color 180ms var(--ease-out);
+}
+.lane-row:first-of-type {
+  border-top: 0;
+}
+
+/* Hovering a lane brings it forward without introducing another colour. */
+.lane-row:hover {
+  background: var(--data-soft);
+}
+
+.rail {
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  color: var(--ink-faint);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding-top: 0.15rem;
+}
+
+.lane-row .rail {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  text-transform: none;
+  letter-spacing: 0;
+  padding-left: 0.75rem;
+}
+
+.rail code {
+  font-size: var(--t-sm);
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.rail em {
+  font-style: normal;
+  font-size: 0.68rem;
+  color: var(--ink-faint);
+}
+
+/* --- time axis ---------------------------------------------------------- */
+
+.track {
+  position: relative;
+  min-height: 4.5rem;
+  padding-right: var(--track-pad);
+}
+
+.source .track {
+  min-height: 1.3rem;
+}
+
+.axis {
+  position: absolute;
+  inset-inline: 0;
+  top: 0.52rem;
+  height: 1px;
+  background: var(--faint);
+}
+
+/* --- source ticks: the input, in accent --------------------------------- */
+
+.tick {
+  position: absolute;
+  top: 0;
+  width: 1.05rem;
+  height: 1.05rem;
+  margin-left: -0.525rem;
+  border: 2px solid var(--rule);
+  border-radius: 50%;
+  background: var(--paper-raised);
+  transition:
+    border-color 160ms var(--ease-out),
+    background-color 160ms var(--ease-out),
+    transform 160ms var(--ease-out);
+}
+
+.tick.fired {
+  border-color: var(--accent);
+  background: var(--accent);
+  transform: scale(1.12);
+}
+
+/* --- output: bars and marbles, in data ---------------------------------- */
+
+.bar {
+  position: absolute;
+  height: 3px;
+  margin-top: 0.5rem;
+  border-radius: 2px;
+  background: var(--data);
+}
+
+.bar.dim {
+  background: var(--rule);
+}
+
+.marble {
+  position: absolute;
+  width: 1.25rem;
+  height: 1.25rem;
+  margin-left: -0.625rem;
+  border-radius: 50%;
+  background: var(--data);
+  color: var(--paper-raised);
+  font-family: var(--mono);
+  font-size: 0.64rem;
+  font-weight: 700;
+  display: grid;
+  place-items: center;
+  animation: land 240ms var(--ease-out) both;
+}
+
+/* Hollow markers sit on the raised panel, so they fill with the panel colour —
+   filling with --paper would read as a hole punched through it in dark mode. */
+.marble.cancelled,
+.marble.ignored {
+  background: var(--paper-raised);
+  border: 1.5px dashed var(--rule);
+  color: var(--ink-faint);
+  font-size: 0.72rem;
+}
+
+.marble.ignored {
+  width: 0.95rem;
+  height: 0.95rem;
+  margin-left: -0.475rem;
+}
+
+@keyframes land {
+  from {
+    transform: scale(0.35);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .marble {
+    animation: none;
+  }
+}
+
+@media (max-width: 34rem) {
+  :host {
+    --rail: 5.5rem;
+  }
+  .lane-row .rail {
+    padding-left: 0;
+  }
+}

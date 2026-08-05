@@ -1,0 +1,30 @@
+:host {
+  position: fixed;
+  left: 50%;
+  bottom: clamp(1.25rem, 4vh, 2.5rem);
+  transform: translateX(-50%);
+  z-index: 20;
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 999px;
+  padding: 0.65rem 1.15rem 0.65rem 0.95rem;
+  font-size: var(--t-sm);
+  font-weight: 500;
+  box-shadow: 0 12px 34px rgb(0 0 0 / 0.22);
+  white-space: nowrap;
+}
+
+.mark {
+  width: 1.05rem;
+  height: 1.05rem;
+  flex-shrink: 0;
+  /* Accent earns its place here: one confirmation, one moment. */
+  color: var(--accent);
+}

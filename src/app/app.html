@@ -1,0 +1,187 @@
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="topbar">
+  <div class="shell bar">
+    <span class="wordmark">ng-signal-query</span>
+    <nav>
+      <a href="#strategies">Strategies</a>
+      <a href="#compare">vs TanStack</a>
+      <a href="#start">Quick start</a>
+      <a href="https://github.com/Ali7040/ng-signal-query">GitHub</a>
+      <button type="button" class="theme" (click)="toggleTheme()" [attr.aria-label]="themeLabel()">
+        {{ theme() === 'dark' ? '☾' : '☀' }}
+      </button>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <!-- ── hero ──────────────────────────────────────────────────────────── -->
+  <section class="hero shell" #hero>
+    <div class="hero-copy">
+      <p class="stagger-in eyebrow">v{{ version }} · Angular {{ angularVersion }} · MIT</p>
+      <h1 class="stagger-in">Server state for Angular,<br />built on <span class="accent">signals</span>.</h1>
+      <p class="stagger-in lede">
+        Queries, mutations and caching with no observer layer underneath — the cache entry
+        <em>is</em> a signal. Plus the thing every app hand-rolls: control over what happens
+        when the same mutation fires twice.
+      </p>
+
+      <div class="stagger-in cta">
+        <button type="button" class="install" (click)="copyInstall()">
+          <code>npm i {{ pkg }}</code>
+          <span class="copied" aria-live="polite">{{ copied() ? 'Copied' : 'Copy' }}</span>
+        </button>
+        <a class="ghost" href="https://github.com/Ali7040/ng-signal-query">Read the docs</a>
+      </div>
+
+      <ul class="stagger-in facts">
+        <li><b>34 kB</b><span>unpacked</span></li>
+        <li><b>1</b><span>runtime dep</span></li>
+        <li><b>0</b><span>breaking changes</span></li>
+      </ul>
+    </div>
+
+    <figure class="hero-figure stagger-in">
+      <figcaption>
+        <span class="eyebrow">One button, clicked five times</span>
+        <p>Four strategies. Four outcomes. One option.</p>
+      </figcaption>
+      <app-marble-diagram />
+    </figure>
+  </section>
+
+  <hr class="datum" />
+
+  <!-- ── strategies ────────────────────────────────────────────────────── -->
+  <section id="strategies" class="block shell reveal">
+    <header class="block-head">
+      <p class="eyebrow">Mutation concurrency</p>
+      <h2>The overlap problem, solved by declaration</h2>
+      <p>
+        A submit button gets double-clicked. An autosave fires while the last one is still in
+        flight. Normally you reach for a disabled flag, a debounce, or a stray
+        <code>AbortController</code>. Here it's one option, with semantics borrowed from RxJS
+        flattening operators.
+      </p>
+    </header>
+
+    <div class="strategy-grid">
+      @for (s of strategies; track s.key) {
+        <article class="strategy">
+          <code class="name">'{{ s.key }}'</code>
+          <span class="operator">{{ s.operator }}</span>
+          <p>{{ s.summary }}</p>
+          <p class="use"><span class="eyebrow">Use for</span>{{ useCase[s.key] }}</p>
+        </article>
+      }
+    </div>
+
+    <pre class="code"><code>{{ strategySnippet }}</code></pre>
+  </section>
+
+  <hr class="hairline" />
+
+  <!-- ── fixed in 0.1.0 ────────────────────────────────────────────────── -->
+  <section class="block shell reveal">
+    <header class="block-head">
+      <p class="eyebrow">Correctness</p>
+      <h2>Three cache bugs, found and fixed</h2>
+      <p>
+        0.1.0 was mostly repair work. These were real defects in earlier versions, and they're
+        the reason the fetch core was rewritten.
+      </p>
+    </header>
+
+    <ol class="fixes">
+      @for (f of fixes; track f.title) {
+        <li>
+          <div class="fix-body">
+            <h3>{{ f.title }}</h3>
+            <p>{{ f.body }}</p>
+          </div>
+        </li>
+      }
+    </ol>
+  </section>
+
+  <hr class="hairline" />
+
+  <!-- ── comparison ────────────────────────────────────────────────────── -->
+  <section id="compare" class="block shell reveal">
+    <header class="block-head">
+      <p class="eyebrow">Honest comparison</p>
+      <h2>Where TanStack Query is still the better choice</h2>
+      <p>
+        TanStack Query is the reference implementation for this problem, and for most teams it
+        remains the right answer. Here is the actual difference, including everything it does
+        that this doesn't.
+      </p>
+    </header>
+
+    <div class="table-scroll">
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Capability</th>
+            <th scope="col">ng-signal-query</th>
+            <th scope="col">TanStack Query</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (r of comparison; track r.feature) {
+            <tr>
+              <th scope="row">{{ r.feature }}</th>
+              <td [class]="'v-' + r.mineKind">{{ r.mine }}</td>
+              <td [class]="'v-' + r.theirsKind">{{ r.theirs }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <p class="footnote">
+      Verified against TanStack Query v5 as of August 2026. Their Angular adapter is published
+      as <code>&#64;tanstack/angular-query-experimental</code> and its docs advise pinning an
+      exact version, since breaking changes ship in minor and patch releases.
+    </p>
+  </section>
+
+  <hr class="hairline" />
+
+  <!-- ── quick start ───────────────────────────────────────────────────── -->
+  <section id="start" class="block shell reveal">
+    <header class="block-head">
+      <p class="eyebrow">Quick start</p>
+      <h2>Three things worth knowing</h2>
+    </header>
+
+    <div class="samples">
+      @for (s of samples; track s.title) {
+        <article>
+          <h3>{{ s.title }}</h3>
+          <p>{{ s.note }}</p>
+          <pre class="code"><code>{{ s.code }}</code></pre>
+        </article>
+      }
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <hr class="datum" />
+  <div class="shell foot-inner">
+    <div>
+      <p class="wordmark">ng-signal-query</p>
+      <p class="small">MIT licensed. Built by Ali Haider.</p>
+    </div>
+    <nav class="foot-links">
+      <a href="https://www.npmjs.com/package/&#64;ali7040/ng-signal-query">npm</a>
+      <a href="https://github.com/Ali7040/ng-signal-query">GitHub</a>
+      <a href="https://github.com/Ali7040/ng-signal-query/issues">Issues</a>
+      <a href="https://github.com/sponsors/ali7040">Sponsor</a>
+    </nav>
+  </div>
+</footer>
+
+<app-toast />

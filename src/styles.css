@@ -1,0 +1,238 @@
+/* ===========================================================================
+   ng-signal-query — design system
+
+   Visual language: the RxJS marble diagram, drawn as a technical schematic.
+
+   COLOUR DISCIPLINE — three colours, no more:
+     1. a neutral ramp, biased slightly toward indigo so it reads as chosen
+     2. --accent  (Angular red)  → input, emphasis, one moment per section
+     3. --data    (indigo)       → everything the library produces
+
+   The four concurrency strategies are deliberately NOT four different hues.
+   They are told apart by the shape of their timeline — a staircase, a queue,
+   crosses then one survivor, one survivor then hollows — which is the actual
+   information. Colour carries meaning here (in vs out), not identity.
+   =========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  /* ── neutrals ─────────────────────────────────────────────────────────── */
+  --paper: #f7f8fa;
+  --paper-raised: #ffffff;
+  --paper-sunken: #eef0f4;
+  --ink: #0d1018;
+  --ink-soft: #596174;
+  --ink-faint: #8a91a1;
+  --rule: #c7ccd8;
+  --faint: #e3e6ec;
+
+  /* ── colour 2: accent ─────────────────────────────────────────────────── */
+  --accent: #dd0031;
+  --accent-soft: rgb(221 0 49 / 0.09);
+
+  /* ── colour 3: data ───────────────────────────────────────────────────── */
+  --data: #3a4bb0;
+  --data-soft: rgb(58 75 176 / 0.1);
+
+  /* ── type ─────────────────────────────────────────────────────────────── */
+  --display: 'Bahnschrift', 'DIN Alternate', 'Segoe UI Variable Display',
+    'Segoe UI', system-ui, sans-serif;
+  --body: 'Segoe UI Variable Text', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --mono: 'Cascadia Mono', 'Cascadia Code', Consolas, 'SF Mono', monospace;
+
+  --t-xs: 0.75rem;
+  --t-sm: 0.875rem;
+  --t-base: 1rem;
+  --t-md: 1.125rem;
+  --t-lg: 1.5rem;
+  --t-xl: 2rem;
+  --t-2xl: 2.75rem;
+  --t-3xl: 3.75rem;
+
+  --shell: 76rem;
+  --radius: 8px;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --paper: #0b0d12;
+    --paper-raised: #12151c;
+    --paper-sunken: #080a0e;
+    --ink: #e9ecf3;
+    --ink-soft: #98a0b2;
+    --ink-faint: #6b7385;
+    --rule: #2b3140;
+    --faint: #1b1f28;
+    --accent: #ff3355;
+    --accent-soft: rgb(255 51 85 / 0.13);
+    --data: #8b98ee;
+    --data-soft: rgb(139 152 238 / 0.14);
+  }
+}
+
+/* The viewer's explicit toggle must beat the OS preference, in both directions. */
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --paper: #0b0d12;
+  --paper-raised: #12151c;
+  --paper-sunken: #080a0e;
+  --ink: #e9ecf3;
+  --ink-soft: #98a0b2;
+  --ink-faint: #6b7385;
+  --rule: #2b3140;
+  --faint: #1b1f28;
+  --accent: #ff3355;
+  --accent-soft: rgb(255 51 85 / 0.13);
+  --data: #8b98ee;
+  --data-soft: rgb(139 152 238 / 0.14);
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --paper: #f7f8fa;
+  --paper-raised: #ffffff;
+  --paper-sunken: #eef0f4;
+  --ink: #0d1018;
+  --ink-soft: #596174;
+  --ink-faint: #8a91a1;
+  --rule: #c7ccd8;
+  --faint: #e3e6ec;
+  --accent: #dd0031;
+  --accent-soft: rgb(221 0 49 / 0.09);
+  --data: #3a4bb0;
+  --data-soft: rgb(58 75 176 / 0.1);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--body);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--display);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.05;
+  text-wrap: balance;
+  margin: 0;
+}
+
+p {
+  margin: 0;
+  max-width: 68ch;
+}
+
+a {
+  color: inherit;
+}
+
+code,
+pre {
+  font-family: var(--mono);
+  font-variant-ligatures: none;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+::selection {
+  background: var(--accent-soft);
+}
+
+/* --- shared ------------------------------------------------------------- */
+
+.shell {
+  max-width: var(--shell);
+  margin: 0 auto;
+  padding: 0 clamp(1.25rem, 4vw, 3.5rem);
+}
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: var(--t-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.datum {
+  border: 0;
+  border-top: 1.5px solid var(--ink);
+  margin: 0;
+}
+
+.hairline {
+  border: 0;
+  border-top: 1px solid var(--faint);
+  margin: 0;
+}
+
+/* --- motion ------------------------------------------------------------- */
+
+/* Scroll-driven reveal: no JS, no observer. Falls back to visible. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .reveal {
+      animation: reveal-in linear both;
+      animation-timeline: view();
+      animation-range: entry 6% cover 24%;
+    }
+  }
+}
+
+@keyframes reveal-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Elements animated in by anime.js start hidden, but only when JS will
+   actually run — otherwise prerendered HTML would stay invisible. */
+.js .stagger-in {
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .js .stagger-in {
+    opacity: 1;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
