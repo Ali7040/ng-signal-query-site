@@ -3,7 +3,7 @@
 Landing page, docs and the interactive concurrency playground for
 [ng-signal-query](https://github.com/Ali7040/ng-signal-query).
 
-Live at **[ng-signal-query.js.org](https://ng-signal-query.js.org)**.
+Live at **[ali7040.github.io/ng-signal-query-site](https://ali7040.github.io/ng-signal-query-site/)**.
 
 ## Why this is a separate repo
 
@@ -35,5 +35,9 @@ npm run build    # prerenders to dist/ng-signal-query-site/browser
 ## Deploy
 
 Pushing to `main` builds and publishes to GitHub Pages via
-`.github/workflows/deploy.yml`. Set *Settings → Pages → Source* to **GitHub
-Actions**. `public/CNAME` holds the custom domain.
+`.github/workflows/deploy.yml`. *Settings → Pages → Source* is set to **GitHub
+Actions**.
+
+The site is served from the default `github.io` address. To move it to a custom
+domain later, add a `public/CNAME` file containing the hostname and set the same
+value under *Settings → Pages → Custom domain*.
