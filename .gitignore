@@ -6,4 +6,8 @@ node_modules/
 *.png
 !public/**/*.png
 .angular/
-config.bat
+
+# env files (restored after malware removed this)
+.env
+.env.*
+!.env.example
